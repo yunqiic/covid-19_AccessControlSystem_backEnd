@@ -19,7 +19,7 @@ DROP  table if exists inspectors;
 create table inspectors(
     id int AUTO_INCREMENT primary key,
     openid varchar(255) default null,
-    uesrname varchar(255) unique not null,
+    username varchar(255) unique not null,
     password varchar(255) not null
 )ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 

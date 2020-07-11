@@ -1,8 +1,35 @@
-POST http://localhost:8080//account/admin/create
+#POST http://localhost:8080//account/admin/create
+#Content-Type: application/json
+#
+#{
+#  "username": "test",
+#  "password": "test",
+#  "comfirm_password": "test"
+#}
+
+#POST http://localhost:8080//account/admin/update
+#Content-Type: application/json
+#
+#{
+#  "id": 5,
+#  "password": "test",
+#  "comfirm_password": "test1"
+#}
+
+#GET http://localhost:8080//account/admin/list
+#Content-Type: application/json
+#
+#{
+#  "id": "",
+#  "username": "",
+#  "page": 1,
+#  "limit": 20,
+#  "sort": "+id "
+#}
+
+POST http://localhost:8080//account/admin/delete
 Content-Type: application/json
 
 {
-  "username": "test",
-  "password": "test",
-  "comfirm_password": "test"
+  "id": 8
 }

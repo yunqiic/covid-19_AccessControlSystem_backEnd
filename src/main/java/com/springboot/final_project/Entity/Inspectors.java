@@ -27,6 +27,4 @@ public class Inspectors {
     //密码
     private String password;
 
-    //用户姓名
-    private String name;
 }

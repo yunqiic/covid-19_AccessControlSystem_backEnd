@@ -1,55 +1,47 @@
 package com.springboot.final_project.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.springboot.final_project.Entity.Admin;
+import com.springboot.final_project.Entity.Inspectors;
 import com.springboot.final_project.Entity.Result;
 import com.springboot.final_project.VO.PageVO;
-import com.springboot.final_project.mapper.AdminMapper;
-import com.springboot.final_project.service.AdminService;
-import lombok.experimental.Accessors;
+import com.springboot.final_project.service.inspectorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/account")
-public class adminController {
+@RequestMapping("/account/inspector")
+public class inspectorController {
 
     @Autowired
-    AdminService adminService;
+    private inspectorService inspectorService;
 
-    @Autowired
-    AdminMapper adminMapper;
-
-    @GetMapping("/admin/list")
+    @GetMapping("/list")
     public String adminList(@RequestBody PageVO pageVO){
         JSONObject json = new JSONObject();
         json.put("code",20000);
         Map<String, Object> map = new HashMap<String, Object>();
         if(pageVO.getId()!=0) {
-            map= adminService.adminListById(pageVO.getId(),pageVO.getPage(), pageVO.getLimit());
+            map= inspectorService.inspectorListById(pageVO.getId(),pageVO.getPage(), pageVO.getLimit());
         }
         if(!pageVO.getUsername().equals("")){
-            map= adminService.adminListByName(pageVO.getUsername(),pageVO.getPage(), pageVO.getLimit());
+            map= inspectorService.inspectorListByName(pageVO.getUsername(),pageVO.getPage(), pageVO.getLimit());
         }
         if (pageVO.getId()==0&&pageVO.getUsername().equals("")){
-            map = adminService.adminList(pageVO.getPage(), pageVO.getLimit());
+            map = inspectorService.inspectorList(pageVO.getPage(), pageVO.getLimit());
         }
         json.put("data",map);
         return  json.toJSONString();
 
     }
 
-    @PostMapping("/admin/create")
+    @PostMapping("/create")
     public String creatAdmin(@RequestBody Map<String, String> map){
-
         JSONObject json = new JSONObject();
         json.put("code",20000);
         Result result = new Result();
@@ -59,16 +51,16 @@ public class adminController {
             json.put("data",result);
             return json.toJSONString();
         }else {
-            Admin admin = new Admin();
-            admin.setUsername(map.get("username"));
-            admin.setPassword(map.get("password"));
-            result.setResult(adminService.createAdmin(admin));
+            Inspectors inspectors = new Inspectors();
+            inspectors.setUsername(map.get("username"));
+            inspectors.setPassword(map.get("password"));
+            result.setResult(inspectorService.createInspector(inspectors));
             json.put("data",result);
             return json.toJSONString();
         }
     }
 
-    @PostMapping("/admin/update")
+    @PostMapping("/update")
     public String updateAdmin(@RequestBody Map<String, String> map){
         JSONObject json = new JSONObject();
         json.put("code",20000);
@@ -79,25 +71,41 @@ public class adminController {
             json.put("data", result);
             return json.toJSONString();
         }else {
-            Admin admin = new Admin();
-            admin.setId(Integer.parseInt(map.get("id")));
-            admin.setPassword(map.get("password"));
-            result.setResult(adminService.updatePassword(admin));
+            Inspectors inspectors = new Inspectors();
+            inspectors.setId(Integer.parseInt(map.get("id")));
+            inspectors.setPassword(map.get("password"));
+            result.setResult(inspectorService.updatePassword(inspectors));
             json.put("data",result);
             return json.toJSONString();
         }
     }
 
-    @PostMapping("/admin/delete")
+    @PostMapping("/delete")
     public String deleteAdmin(@RequestBody Map<String, String> map){
         JSONObject json = new JSONObject();
         json.put("code",20000);
         Result result = new Result();
         result.setResult(1);
-        Admin admin = new Admin();
-        admin.setId(Integer.parseInt(map.get("id")));
-        result.setResult(adminService.deleteAdmin(admin));
+        Inspectors inspectors = new Inspectors();
+        inspectors.setId(Integer.parseInt(map.get("id")));
+        result.setResult(inspectorService.deleteInspector(inspectors));
         json.put("data",result);
         return json.toJSONString();
-        }
+    }
+
+    @PostMapping("/reset-openid")
+    public String resetOpenid(@RequestBody Map<String, String> map){
+        JSONObject json = new JSONObject();
+        json.put("code",20000);
+        Result result = new Result();
+        result.setResult(1);
+        Inspectors inspectors = new Inspectors();
+        inspectors.setId(Integer.parseInt(map.get("id")));
+        inspectors.setOpenid("");
+        result.setResult(inspectorService.resetOpenid(inspectors));
+        json.put("data",result);
+        return json.toJSONString();
+    }
+
+
 }
