@@ -1,0 +1,8 @@
+POST http://localhost:8080//account/admin/create
+Content-Type: application/json
+
+{
+  "username": "test",
+  "password": "test",
+  "comfirm_password": "test"
+}
