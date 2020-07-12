@@ -51,7 +51,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Map<String,Object> adminListByName(String name,int index, int limit) {
         Page<Admin> page = new Page<>(index,limit);
-        adminMapper.selectPage(page,new QueryWrapper<Admin>().eq("username",name));
+        adminMapper.selectPage(page,new QueryWrapper<Admin>().like("username",name));
         List<Admin> admins = page.getRecords();
         HashMap<String, Object> map = new HashMap<String, Object>();
         map.put("list",admins);

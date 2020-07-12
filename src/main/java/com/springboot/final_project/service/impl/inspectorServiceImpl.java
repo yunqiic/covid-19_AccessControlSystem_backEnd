@@ -34,7 +34,7 @@ public class inspectorServiceImpl implements inspectorService {
     @Override
     public Map<String,Object> inspectorListByName(String name,int index, int limit) {
         Page<Inspectors> page = new Page<>(index,limit);
-        inspectorsMapper.selectPage(page,new QueryWrapper<Inspectors>().eq("username",name));
+        inspectorsMapper.selectPage(page,new QueryWrapper<Inspectors>().like("username",name));
         List<Inspectors> inspectors = page.getRecords();
         HashMap<String, Object> map = new HashMap<String, Object>();
         map.put("list",inspectors);

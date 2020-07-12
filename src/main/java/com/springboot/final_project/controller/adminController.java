@@ -33,11 +33,19 @@ public class adminController {
         JSONObject json = new JSONObject();
         json.put("code",20000);
         Map<String, Object> map = new HashMap<String, Object>();
-        if(pageVO.getId()!=0) {
-            map= adminService.adminListById(pageVO.getId(),pageVO.getPage(), pageVO.getLimit());
-        }
-        if(!pageVO.getUsername().equals("")){
-            map= adminService.adminListByName(pageVO.getUsername(),pageVO.getPage(), pageVO.getLimit());
+        if(pageVO.getId()!=0&&!pageVO.getUsername().equals("")){
+            Page<Admin> page = new Page<>(pageVO.getPage(),pageVO.getLimit());
+            adminMapper.selectPage(page,new QueryWrapper<Admin>().like("username",pageVO.getUsername()).eq("id",pageVO.getId()));
+            List<Admin> admins = page.getRecords();
+            map.put("list",admins);
+            map.put("total",page.getTotal());
+        }else {
+            if(pageVO.getId()!=0) {
+                map= adminService.adminListById(pageVO.getId(),pageVO.getPage(), pageVO.getLimit());
+            }
+            if(!pageVO.getUsername().equals("")){
+                map= adminService.adminListByName(pageVO.getUsername(),pageVO.getPage(), pageVO.getLimit());
+            }
         }
         if (pageVO.getId()==0&&pageVO.getUsername().equals("")){
             map = adminService.adminList(pageVO.getPage(), pageVO.getLimit());

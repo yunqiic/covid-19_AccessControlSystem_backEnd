@@ -1,15 +1,19 @@
 package com.springboot.final_project.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.springboot.final_project.Entity.Admin;
 import com.springboot.final_project.Entity.Inspectors;
 import com.springboot.final_project.Entity.Result;
 import com.springboot.final_project.VO.PageVO;
+import com.springboot.final_project.mapper.InspectorsMapper;
 import com.springboot.final_project.service.inspectorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -21,17 +25,29 @@ public class inspectorController {
     @Autowired
     private inspectorService inspectorService;
 
+    @Autowired
+    private InspectorsMapper inspectorsMapper;
+
     @GetMapping("/list")
     public String adminList(@RequestBody PageVO pageVO){
         JSONObject json = new JSONObject();
         json.put("code",20000);
         Map<String, Object> map = new HashMap<String, Object>();
-        if(pageVO.getId()!=0) {
-            map= inspectorService.inspectorListById(pageVO.getId(),pageVO.getPage(), pageVO.getLimit());
+        if(pageVO.getId()!=0&&!pageVO.getUsername().equals("")){
+            Page<Inspectors> page = new Page<>(pageVO.getPage(),pageVO.getLimit());
+            inspectorsMapper.selectPage(page,new QueryWrapper<Inspectors>().like("username",pageVO.getUsername()).eq("id",pageVO.getId()));
+            List<Inspectors> inspectors = page.getRecords();
+            map.put("list",inspectors);
+            map.put("total",page.getTotal());
+        }else {
+            if(pageVO.getId()!=0) {
+                map= inspectorService.inspectorListById(pageVO.getId(),pageVO.getPage(), pageVO.getLimit());
+            }
+            if(!pageVO.getUsername().equals("")){
+                map= inspectorService.inspectorListByName(pageVO.getUsername(),pageVO.getPage(), pageVO.getLimit());
+            }
         }
-        if(!pageVO.getUsername().equals("")){
-            map= inspectorService.inspectorListByName(pageVO.getUsername(),pageVO.getPage(), pageVO.getLimit());
-        }
+
         if (pageVO.getId()==0&&pageVO.getUsername().equals("")){
             map = inspectorService.inspectorList(pageVO.getPage(), pageVO.getLimit());
         }
