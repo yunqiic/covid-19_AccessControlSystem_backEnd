@@ -31,7 +31,9 @@ public class RecordForm {
 
     private Integer inspectors_id;
 
-    private User user;
-
-    private Inspectors inspectors;
+//    @TableField(exist = false)//表示该属性不为数据库表字段，但又是必须使用的
+//    private User user;
+//
+//    @TableField(exist = false)//表示该属性不为数据库表字段，但又是必须使用的
+//    private Inspectors inspectors;
 }
