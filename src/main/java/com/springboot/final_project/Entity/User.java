@@ -48,10 +48,10 @@ public class User {
     private String house_no;
 
     //健康状态
-    private Boolean health_status;
+    private Integer health_status;
 
     //出入次数
-    private Boolean access_times;
+    private Integer access_times;
 
     //账号是否被锁定
     private Boolean is_locked;
@@ -59,4 +59,32 @@ public class User {
     @TableField(exist = false)//表示该属性不为数据库表字段，但又是必须使用的
     private List<RecordForm> recordFormList;
 
+
+    public User(int id, String openid, String password, String username, String name, int sex, String identity_card, String photo, String house_no, int health_status, int access_times, Boolean is_locked) {
+        this.id = id;
+        this.openid = openid;
+        this.password = password;
+        this.username = username;
+        this.name = name;
+        this.sex = sex;
+        this.identity_card = identity_card;
+        this.photo = photo;
+        this.house_no = house_no;
+        this.health_status = health_status;
+        this.access_times = access_times;
+        this.is_locked = is_locked;
+    }
+
+    public User(int id, String username, String name, int sex, String identity_card, String photo, String house_no, int health_status, int access_times, Boolean is_locked) {
+        this.id = id;
+        this.username = username;
+        this.name = name;
+        this.sex = sex;
+        this.identity_card = identity_card;
+        this.photo = photo;
+        this.house_no = house_no;
+        this.health_status = health_status;
+        this.access_times = access_times;
+        this.is_locked = is_locked;
+    }
 }
