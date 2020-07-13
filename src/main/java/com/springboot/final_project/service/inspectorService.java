@@ -20,4 +20,14 @@ public interface inspectorService {
     int deleteInspector(Inspectors inspectors);
 
     int resetOpenid(Inspectors inspectors);
+
+    String getOpenid(String code);
+
+    String ChangePwd(int id,String old_password,String password,String comfirm_password);
+
+    String CancelBind(int id);
+
+    String Bind(int id,String openid);
+
+    String IfBind(int id);
 }

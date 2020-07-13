@@ -212,7 +212,7 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    @Override//信号量  成功:0   两次密码不一致:1   与旧密码一致:2   旧密码不正确:3   读写错误:4
+    @Override//信号量  成功:0   两次密码不一致:1   旧密码不正确:2   读写错误:3
     public String ChangePwd(int id,String old_password,String password,String comfirm_password){
         JSONObject result = new JSONObject();
         try {
@@ -222,10 +222,6 @@ public class UserServiceImpl implements UserService {
                 return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
             }
             if (!Objects.equals(user.getPassword(), old_password)) {
-                result.put("result", 3);
-                return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
-            }
-            if (Objects.equals(old_password, password)) {
                 result.put("result", 2);
                 return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
             }
@@ -235,7 +231,7 @@ public class UserServiceImpl implements UserService {
             return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
         }catch (Exception e) {
             e.printStackTrace();
-            result.put("result", 4);
+            result.put("result", 3);
             return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
         }
 

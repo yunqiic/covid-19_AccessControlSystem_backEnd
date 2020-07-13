@@ -24,7 +24,7 @@ public class RecordForm {
     private Double temperature;
 
     //创建时间
-    @TableField(fill = FieldFill.INSERT)
+//    @TableField(fill = FieldFill.INSERT)
     private Date time;
 
     private Integer user_id;
