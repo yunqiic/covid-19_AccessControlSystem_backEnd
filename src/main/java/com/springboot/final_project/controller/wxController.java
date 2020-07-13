@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
+@CrossOrigin
 @Controller
 public class wxController {
 
@@ -37,6 +38,33 @@ public class wxController {
     @RequestMapping("/")
     public String index(){
         return "index.html";
+    }
+
+    @RequestMapping("/admin/login")
+    @ResponseBody
+    public String adminLogin(String username,String password){
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("code",20000);
+        jsonObject.put("data","admin-token");
+        return jsonObject.toJSONString();
+//        return wxService.adminLogin();
+    }
+
+    @RequestMapping("/admin/info")
+    @ResponseBody
+    public String adminInfo(){
+        JSONObject data = new JSONObject();
+
+        data.put("roles","admin");
+        data.put("introduction","I am a super administrator");
+        data.put("avatar","https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif");
+        data.put("name","Super Admin");
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("code",20000);
+        jsonObject.put("data",data);
+        return jsonObject.toJSONString();
+//        return wxService.adminInfo();
     }
 
     //防水墙
