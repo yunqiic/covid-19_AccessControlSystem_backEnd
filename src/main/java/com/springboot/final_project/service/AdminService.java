@@ -7,7 +7,7 @@ import java.util.Map;
 
 
 public interface AdminService {
-    int createAdmin(Admin admin);
+    Map<String,Object> createAdmin(Admin admin);
 
     Map<String,Object> adminListById(int id,int index, int limit);
 

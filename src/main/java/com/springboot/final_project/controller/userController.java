@@ -32,14 +32,12 @@ public class userController
         if(user.getAccess_times()==null)user.setAccess_times(0);
         try {
             if (userService.add(user) ==1 ){
-                result.put("code", 1);
-                result.put("msg", "添加成功");
+                result.put("result", 0);
             }
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("失败，事务回滚");
-            result.put("code", 0);
-            result.put("msg", "添加失败");
+            result.put("result", 1);
         }
         return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
     }
@@ -74,7 +72,6 @@ public class userController
         if(health_query.equals("healthy"))user.setHealth_status(0);
         else if(health_query.equals("unhealthy"))user.setHealth_status(1);
         else;
-        System.out.println(user);
         Map<String, Object> map = new HashMap<String, Object>();
         map = userService.getList(user,page, limit,sort);
         result.put("data",map);

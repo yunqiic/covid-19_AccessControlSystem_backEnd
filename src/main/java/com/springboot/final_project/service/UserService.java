@@ -18,4 +18,18 @@ public interface UserService {
 
     User getById(int id);
 
+    User getByUserName(String username);
+
+    User getByOpenid(String openid);
+
+    String ChangePwd(int id,String old_password,String password,String comfirm_password);
+
+    String CancelBind(int id);
+
+    String Bind(int id,String openid);
+
+    String IfBind(int id);
+
+    String Edit(int id,int sex,String identity_card,String house_no,String photo);
+
 }

@@ -17,7 +17,7 @@ public class waterService
     public String waterCheck(String ticket, String randstr){
         try{
 
-            Credential cred = new Credential("AKIDRcXGkw3cQxEI6cl92hvHZXA1YpzsHu4x", "DAr7GNFqBSffQyd3DF1ShgS2LVfgQu97");
+            Credential cred = new Credential("AKIDMTJvObvP7bnhSwd5oXzmseCTTBj1cnNo", "XFvlHVTCbmhQWKpQlztWswiPpzTeYAV6");
 
             HttpProfile httpProfile = new HttpProfile();
             httpProfile.setEndpoint("captcha.tencentcloudapi.com");

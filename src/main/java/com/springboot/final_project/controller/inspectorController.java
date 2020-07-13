@@ -12,10 +12,7 @@ import com.springboot.final_project.service.inspectorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @CrossOrigin
 @RestController
@@ -28,97 +25,122 @@ public class inspectorController {
     @Autowired
     private InspectorsMapper inspectorsMapper;
 
+    //1.按筛选条件获取检查员列表
     @GetMapping("/list")
-    public String adminList(@RequestBody PageVO pageVO){
+    public String adminList(Inspectors inspectors,int page,int limit,String sort){
         JSONObject json = new JSONObject();
         json.put("code",20000);
         Map<String, Object> map = new HashMap<String, Object>();
-        if(pageVO.getId()!=0&&!pageVO.getUsername().equals("")){
-            Page<Inspectors> page = new Page<>(pageVO.getPage(),pageVO.getLimit());
-            inspectorsMapper.selectPage(page,new QueryWrapper<Inspectors>().like("username",pageVO.getUsername()).eq("id",pageVO.getId()));
-            List<Inspectors> inspectors = page.getRecords();
-            map.put("list",inspectors);
-            map.put("total",page.getTotal());
+        Page<Inspectors> pages = new Page<>(page,limit);
+        if(inspectors.getId()!=null&&!inspectors.getUsername().equals("")){
+            inspectorsMapper.selectPage(pages,new QueryWrapper<Inspectors>().like("username",inspectors.getUsername()).like("id",inspectors.getId()));
         }else {
-            if(pageVO.getId()!=0) {
-                map= inspectorService.inspectorListById(pageVO.getId(),pageVO.getPage(), pageVO.getLimit());
+            if(inspectors.getId()!=null) {
+                inspectorsMapper.selectPage(pages,new QueryWrapper<Inspectors>().like("id",inspectors.getId()));
             }
-            if(!pageVO.getUsername().equals("")){
-                map= inspectorService.inspectorListByName(pageVO.getUsername(),pageVO.getPage(), pageVO.getLimit());
+            if(!inspectors.getUsername().equals("")){
+                inspectorsMapper.selectPage(pages,new QueryWrapper<Inspectors>().like("username",inspectors.getUsername()));
             }
         }
 
-        if (pageVO.getId()==0&&pageVO.getUsername().equals("")){
-            map = inspectorService.inspectorList(pageVO.getPage(), pageVO.getLimit());
+        if (inspectors.getId()==null&&inspectors.getUsername().equals("")){
+            inspectorsMapper.selectPage(pages,new QueryWrapper<Inspectors>());
         }
+        List<Inspectors> inspector = pages.getRecords();
+        if(sort.equals("-id")) Collections.reverse(inspector);
+        map.put("list",inspector);
+        map.put("total",pages.getTotal());
         json.put("data",map);
         return  json.toJSONString();
 
     }
 
+    //2.添加检查员
     @PostMapping("/create")
-    public String creatAdmin(@RequestBody Map<String, String> map){
+    public String creatInspector(Inspectors inspectors,String comfirm_password){
         JSONObject json = new JSONObject();
         json.put("code",20000);
         Result result = new Result();
-        result.setResult(3);
-        if(!Objects.equals(map.get("password"), map.get("comfirm_password"))){
+        result.setResult(3);//信号量  成功:0   用户名已存在:1   两次密码不一致:2   读写错误:3
+        if(!Objects.equals(inspectors.getPassword(), comfirm_password)){
             result.setResult(2);
             json.put("data",result);
             return json.toJSONString();
         }else {
-            Inspectors inspectors = new Inspectors();
-            inspectors.setUsername(map.get("username"));
-            inspectors.setPassword(map.get("password"));
             result.setResult(inspectorService.createInspector(inspectors));
             json.put("data",result);
             return json.toJSONString();
         }
     }
 
+    //3.修改检查员密码
+    //信号量  成功:0   两次密码不一致:1   旧密码不正确:2   读写错误:3
     @PostMapping("/update")
-    public String updateAdmin(@RequestBody Map<String, String> map){
+    public String updateAdmin(String id,String old_password,String new_password,String comfirm_password){
         JSONObject json = new JSONObject();
         json.put("code",20000);
         Result result = new Result();
-        result.setResult(2);
-        if(!Objects.equals(map.get("password"), map.get("comfirm_password"))) {
-            result.setResult(1);
+        try {
+            if (!Objects.equals(new_password, comfirm_password)) {
+                result.setResult(1);
+                json.put("data", result);
+                return json.toJSONString();
+            } else {
+                Inspectors inspectors = inspectorsMapper.selectById(id);
+                if (!Objects.equals(inspectors.getPassword(), old_password)) {
+                    result.setResult(2);
+                    json.put("data", result);
+                    return json.toJSONString();
+                }
+                inspectors.setPassword(new_password);
+                result.setResult(inspectorService.updatePassword(inspectors));
+                json.put("data", result);
+                return json.toJSONString();
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+            result.setResult(3);
             json.put("data", result);
-            return json.toJSONString();
-        }else {
-            Inspectors inspectors = new Inspectors();
-            inspectors.setId(Integer.parseInt(map.get("id")));
-            inspectors.setPassword(map.get("password"));
-            result.setResult(inspectorService.updatePassword(inspectors));
-            json.put("data",result);
             return json.toJSONString();
         }
     }
 
+    //4.删除检查员
+    //信号量  成功:0   失败:1
     @PostMapping("/delete")
-    public String deleteAdmin(@RequestBody Map<String, String> map){
+    public String deleteAdmin(int id){
         JSONObject json = new JSONObject();
         json.put("code",20000);
         Result result = new Result();
-        result.setResult(1);
-        Inspectors inspectors = new Inspectors();
-        inspectors.setId(Integer.parseInt(map.get("id")));
-        result.setResult(inspectorService.deleteInspector(inspectors));
+        try {
+            Inspectors inspectors = new Inspectors();
+            inspectors.setId(id);
+            result.setResult(inspectorService.deleteInspector(inspectors));
+        }catch (Exception e) {
+            e.printStackTrace();
+            result.setResult(1);
+        }
         json.put("data",result);
         return json.toJSONString();
     }
 
+    //5.初始化检查员openid
+    //信号量  成功:0   失败:1
     @PostMapping("/reset-openid")
-    public String resetOpenid(@RequestBody Map<String, String> map){
+    public String resetOpenid(int id){
         JSONObject json = new JSONObject();
         json.put("code",20000);
         Result result = new Result();
         result.setResult(1);
-        Inspectors inspectors = new Inspectors();
-        inspectors.setId(Integer.parseInt(map.get("id")));
-        inspectors.setOpenid("");
-        result.setResult(inspectorService.resetOpenid(inspectors));
+        try {
+            Inspectors inspectors = new Inspectors();
+            inspectors.setId(id);
+            inspectors.setOpenid("");
+            result.setResult(inspectorService.resetOpenid(inspectors));
+        }catch (Exception e) {
+            e.printStackTrace();
+            result.setResult(1);
+        }
         json.put("data",result);
         return json.toJSONString();
     }

@@ -12,10 +12,7 @@ import lombok.experimental.Accessors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @CrossOrigin
 @RestController
@@ -28,82 +25,97 @@ public class adminController {
     @Autowired
     AdminMapper adminMapper;
 
-    @GetMapping("/admin/list")
-    public String adminList(@RequestBody PageVO pageVO){
+    //1.按筛选条件获取管理员列表
+    @RequestMapping("/admin/list")
+    public String adminList(Admin admin,int page,int limit,String sort){
         JSONObject json = new JSONObject();
         json.put("code",20000);
         Map<String, Object> map = new HashMap<String, Object>();
-        if(pageVO.getId()!=0&&!pageVO.getUsername().equals("")){
-            Page<Admin> page = new Page<>(pageVO.getPage(),pageVO.getLimit());
-            adminMapper.selectPage(page,new QueryWrapper<Admin>().like("username",pageVO.getUsername()).eq("id",pageVO.getId()));
-            List<Admin> admins = page.getRecords();
-            map.put("list",admins);
-            map.put("total",page.getTotal());
+        Page<Admin> pages = new Page<>(page,limit);
+        if(admin.getId()!=null&&!admin.getUsername().equals("")){//查id和username
+            adminMapper.selectPage(pages,new QueryWrapper<Admin>().like("username",admin.getUsername()).like("id",admin.getId()));
         }else {
-            if(pageVO.getId()!=0) {
-                map= adminService.adminListById(pageVO.getId(),pageVO.getPage(), pageVO.getLimit());
+            if(admin.getId()!=null) {//只查id
+                adminMapper.selectPage(pages,new QueryWrapper<Admin>().like("id",admin.getId()));
             }
-            if(!pageVO.getUsername().equals("")){
-                map= adminService.adminListByName(pageVO.getUsername(),pageVO.getPage(), pageVO.getLimit());
+            if(!admin.getUsername().equals("")){//只查username
+                adminMapper.selectPage(pages,new QueryWrapper<Admin>().like("username",admin.getUsername()));
             }
         }
-        if (pageVO.getId()==0&&pageVO.getUsername().equals("")){
-            map = adminService.adminList(pageVO.getPage(), pageVO.getLimit());
+        if (admin.getId()==null&&admin.getUsername().equals("")){//全列表
+            adminMapper.selectPage(pages,new QueryWrapper<Admin>());
         }
+        List<Admin> admins = pages.getRecords();
+        if(sort.equals("-id")) Collections.reverse(admins);
+        map.put("list",admins);
+        map.put("total",pages.getTotal());
         json.put("data",map);
         return  json.toJSONString();
 
     }
 
+    //2.添加管理员
     @PostMapping("/admin/create")
-    public String creatAdmin(@RequestBody Map<String, String> map){
+    public String creatAdmin(Admin admin,String comfirm_password){
 
         JSONObject json = new JSONObject();
         json.put("code",20000);
-        Result result = new Result();
-        result.setResult(3);
-        if(!Objects.equals(map.get("password"), map.get("comfirm_password"))){
-            result.setResult(2);
-            json.put("data",result);
+
+        Map<String, Object> map = new HashMap<String, Object>();
+        if(!Objects.equals(admin.getPassword(), comfirm_password)){
+            map.put("id",0);
+            map.put("result",2);//2:两次密码不一致
+            json.put("data",map);
             return json.toJSONString();
         }else {
-            Admin admin = new Admin();
-            admin.setUsername(map.get("username"));
-            admin.setPassword(map.get("password"));
-            result.setResult(adminService.createAdmin(admin));
-            json.put("data",result);
+            map = adminService.createAdmin(admin);
+            json.put("data",map);
             return json.toJSONString();
         }
     }
 
+    //3.修改管理员密码
     @PostMapping("/admin/update")
-    public String updateAdmin(@RequestBody Map<String, String> map){
+    public String updateAdmin(String id,String old_password,String new_password,String comfirm_password){
         JSONObject json = new JSONObject();
         json.put("code",20000);
         Result result = new Result();
-        result.setResult(2);
-        if(!Objects.equals(map.get("password"), map.get("comfirm_password"))) {
-            result.setResult(1);
+        //信号量  成功:0   两次密码不一致:1   旧密码不正确:2   读写错误:3
+        try {
+            if (!Objects.equals(new_password, comfirm_password)) {
+                result.setResult(1);
+                json.put("data", result);
+                return json.toJSONString();
+            } else {
+                Admin admin = adminMapper.selectById(id);
+                //如果旧密码不正确
+                if (!Objects.equals(admin.getPassword(), old_password)) {
+                    result.setResult(2);
+                    json.put("data", result);
+                    return json.toJSONString();
+                }
+                admin.setPassword(new_password);
+                result.setResult(adminService.updatePassword(admin));
+                json.put("data", result);
+                return json.toJSONString();
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+            result.setResult(3);
             json.put("data", result);
             return json.toJSONString();
-        }else {
-            Admin admin = new Admin();
-            admin.setId(Integer.parseInt(map.get("id")));
-            admin.setPassword(map.get("password"));
-            result.setResult(adminService.updatePassword(admin));
-            json.put("data",result);
-            return json.toJSONString();
         }
     }
 
+    //4.删除管理员
     @PostMapping("/admin/delete")
-    public String deleteAdmin(@RequestBody Map<String, String> map){
+    public String deleteAdmin(int id){
         JSONObject json = new JSONObject();
         json.put("code",20000);
         Result result = new Result();
         result.setResult(1);
         Admin admin = new Admin();
-        admin.setId(Integer.parseInt(map.get("id")));
+        admin.setId(id);
         result.setResult(adminService.deleteAdmin(admin));
         json.put("data",result);
         return json.toJSONString();

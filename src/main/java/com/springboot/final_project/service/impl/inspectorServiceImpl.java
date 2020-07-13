@@ -74,9 +74,14 @@ public class inspectorServiceImpl implements inspectorService {
 
     @Override
     public int updatePassword(Inspectors inspectors) {
-        Integer result = 1;
-        inspectorsMapper.updateById(inspectors);
-        result=0;
+        Integer result ;
+        try {
+            inspectorsMapper.updateById(inspectors);
+            result = 0;
+        }catch (Exception e) {
+            e.printStackTrace();
+            result = 3;
+        }
         return result;
     }
 

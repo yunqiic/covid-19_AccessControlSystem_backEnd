@@ -1,5 +1,8 @@
 package com.springboot.final_project.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.springboot.final_project.Entity.User;
@@ -8,10 +11,7 @@ import com.springboot.final_project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -163,6 +163,7 @@ public class UserServiceImpl implements UserService {
         else userMapper.selectPage(page,null);
 
         List<User> users = page.getRecords();
+        //逆序
         if(sort.equals("-id")) Collections.reverse(users);
         HashMap<String, Object> map = new HashMap<String, Object>();
         map.put("list",users);
@@ -194,5 +195,116 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.selectById(id);
         return user;
     }
+
+    @Override
+    public User getByUserName(String username){
+
+        User user = userMapper.getUserByUserName(username);
+
+        return user;
+    }
+
+    @Override
+    public User getByOpenid(String openid){
+
+        User user = userMapper.getUserByOpenid(openid);
+
+        return user;
+    }
+
+    @Override//信号量  成功:0   两次密码不一致:1   与旧密码一致:2   旧密码不正确:3   读写错误:4
+    public String ChangePwd(int id,String old_password,String password,String comfirm_password){
+        JSONObject result = new JSONObject();
+        try {
+            User user = userMapper.selectById(id);
+            if (!Objects.equals(comfirm_password, password)) {
+                result.put("result", 1);
+                return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
+            }
+            if (!Objects.equals(user.getPassword(), old_password)) {
+                result.put("result", 3);
+                return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
+            }
+            if (Objects.equals(old_password, password)) {
+                result.put("result", 2);
+                return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
+            }
+            user.setPassword(password);
+            userMapper.updateById(user);
+            result.put("result", 0);
+            return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
+        }catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", 4);
+            return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
+        }
+
+    }
+
+    @Override
+    public String CancelBind(int id){
+        JSONObject result = new JSONObject();
+        try {
+            User user = userMapper.selectById(id);
+            user.setOpenid("");
+            userMapper.updateById(user);
+            result.put("result",0);
+            return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
+        }catch (Exception e) {
+            e.printStackTrace();
+            result.put("result",1);
+            return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
+        }
+    }
+
+    @Override
+    public String Bind(int id,String openid){
+        JSONObject result = new JSONObject();
+        try {
+            User user = userMapper.selectById(id);
+            user.setOpenid(openid);
+            userMapper.updateById(user);
+            result.put("result",0);
+            return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
+        }catch (Exception e) {
+            e.printStackTrace();
+            result.put("result",1);
+            return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
+        }
+    }
+
+    @Override
+    public String IfBind(int id){
+        JSONObject result = new JSONObject();
+        User user = userMapper.selectById(id);
+        if(user.getOpenid()==null || user.getOpenid().equals("")){
+            result.put("is_bind",false);
+            return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
+        }
+        else {
+            result.put("is_bind",true);
+            return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
+        }
+    }
+
+    @Override//信号量  成功:0   读写错误:1
+    public String Edit(int id,int sex,String identity_card,String house_no,String photo){
+        JSONObject result = new JSONObject();
+        try {
+            User user = userMapper.selectById(id);
+            user.setSex(sex);
+            user.setIdentity_card(identity_card);
+            user.setHouse_no(house_no);
+            user.setPhoto(photo);
+            userMapper.updateById(user);
+            result.put("result", 0);
+        }catch (Exception e) {
+            e.printStackTrace();
+            result.put("result",1);
+        }
+        return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
+    }
+
+
 
 }

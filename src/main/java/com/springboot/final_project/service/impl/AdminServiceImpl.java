@@ -20,19 +20,29 @@ public class AdminServiceImpl implements AdminService {
     private AdminMapper adminMapper;
 
     @Override
-    public int createAdmin(Admin admin) {
+    public Map<String,Object> createAdmin(Admin admin) {
         Integer result = 0;
         QueryWrapper<Admin> wrapper = new QueryWrapper();
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        try {
+            Admin admin1 = adminMapper.selectOne(wrapper.eq("username", admin.getUsername()));
 
-        Admin admin1= adminMapper.selectOne(wrapper.eq("username",admin.getUsername()));
-
-        if(admin1 != null){
-            result =1;
-            return result;
-        }else {
-            adminMapper.insert(admin);
-            result=0;
-            return result;
+            if (admin1 != null) {
+                map.put("id", 0);
+                map.put("result", 1);
+                return map;
+            } else {
+                adminMapper.insert(admin);
+                Admin admin2 = adminMapper.selectOne(wrapper.eq("username", admin.getUsername()));
+                map.put("id", admin2.getId());
+                map.put("result", 0);
+                return map;
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+            map.put("id", 0);
+            map.put("result", 3);
+            return map;
         }
     }
 
@@ -75,16 +85,26 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public int updatePassword(Admin admin) {
-        Integer result = 1;
-        adminMapper.updateById(admin);
-        result=0;
+        Integer result ;
+        try {
+            adminMapper.updateById(admin);
+            result = 0;
+        }catch (Exception e) {
+            e.printStackTrace();
+            result = 3;
+        }
         return result;
     }
 
     @Override
     public int deleteAdmin(Admin admin){
-        Integer result = 0;
-        adminMapper.deleteById(admin.getId());
+        Integer result = 0;//信号量  成功:0   失败:1
+        try {
+            adminMapper.deleteById(admin.getId());
+        }catch (Exception e) {
+            e.printStackTrace();
+            result = 1;
+        }
         return result;
     }
 }
