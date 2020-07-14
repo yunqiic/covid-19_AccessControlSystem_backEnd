@@ -1,6 +1,8 @@
 package com.springboot.final_project.config;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.springboot.final_project.Entity.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -23,7 +25,13 @@ public class MyAuthenctiationFailureHandler extends SimpleUrlAuthenticationFailu
                                         AuthenticationException exception) throws IOException, ServletException {
 
 
-        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("message","用户名 或 密码错误.");
+
+
         response.setContentType("application/json;charset=UTF-8");
-//        response.getWriter().write(objectMapper.writeValueAsString(new BaseResponse(exception.getMessage())));
+        response.getWriter().write(objectMapper.writeValueAsString(jsonObject));
+
+    }
 }
