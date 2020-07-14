@@ -22,7 +22,7 @@ public interface UserService {
 
     User getByOpenid(String openid);
 
-    String ChangePwd(int id,String old_password,String password,String comfirm_password);
+    String ChangePwd(int id,String old_password,String password,String confirm_password);
 
     String CancelBind(int id);
 

@@ -34,12 +34,9 @@ public class analysisController {
     }
 
     @GetMapping("/record")
-    public String analysisRecord(@RequestBody Map<String, Object> map){
-        JSONObject string = new JSONObject(map);
+    public String analysisRecord(int option){
         JSONObject json = new JSONObject();
         json.put("code",20000);
-        string=string.getJSONObject("query");
-        Integer option = Integer.parseInt(string.get("option").toString()) ;
         System.out.println(option);
         Map<String, Object> listMap = new HashMap<String, Object>();
         listMap = analysisService.analysisRecord(option);

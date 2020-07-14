@@ -56,18 +56,19 @@ public class adminController {
 
     //2.添加管理员
     @PostMapping("/admin/create")
-    public String creatAdmin(Admin admin,String comfirm_password){
+    public String creatAdmin(Admin admin,String confirm_password,String new_password){
 
         JSONObject json = new JSONObject();
         json.put("code",20000);
-
         Map<String, Object> map = new HashMap<String, Object>();
-        if(!Objects.equals(admin.getPassword(), comfirm_password)){
+
+        if(!Objects.equals(new_password, confirm_password)){
             map.put("id",0);
             map.put("result",2);//2:两次密码不一致
             json.put("data",map);
             return json.toJSONString();
         }else {
+            admin.setPassword(new_password);
             map = adminService.createAdmin(admin);
             json.put("data",map);
             return json.toJSONString();
@@ -76,13 +77,13 @@ public class adminController {
 
     //3.修改管理员密码
     @PostMapping("/admin/update")
-    public String updateAdmin(String id,String old_password,String new_password,String comfirm_password){
+    public String updateAdmin(String id,String old_password,String new_password,String confirm_password){
         JSONObject json = new JSONObject();
         json.put("code",20000);
         Result result = new Result();
         //信号量  成功:0   两次密码不一致:1   旧密码不正确:2   读写错误:3
         try {
-            if (!Objects.equals(new_password, comfirm_password)) {
+            if (!Objects.equals(new_password, confirm_password)) {
                 result.setResult(1);
                 json.put("data", result);
                 return json.toJSONString();
@@ -119,5 +120,5 @@ public class adminController {
         result.setResult(adminService.deleteAdmin(admin));
         json.put("data",result);
         return json.toJSONString();
-        }
+    }
 }

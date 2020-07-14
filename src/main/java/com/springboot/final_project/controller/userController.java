@@ -60,20 +60,28 @@ public class userController
         return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
     }
 
-    ////按筛选条件获取出入记录列表
+    //按筛选条件获取列表
     @RequestMapping("/list")
     public String getUserInfo(User user, String locked_query, String health_query, int page, int limit, String sort) {
         JSONObject result = new JSONObject();
         result.put("code", 20000);
-        if(locked_query.equals("locked"))user.setIs_locked(true);
-        else if(locked_query.equals("unlocked")) user.setIs_locked(false);
-        else;
-
-        if(health_query.equals("healthy"))user.setHealth_status(0);
-        else if(health_query.equals("unhealthy"))user.setHealth_status(1);
-        else;
         Map<String, Object> map = new HashMap<String, Object>();
-        map = userService.getList(user,page, limit,sort);
+        if (locked_query!=null && locked_query.equals("locked")) user.setIs_locked(true);
+        else if (locked_query!=null && locked_query.equals("unlocked")) user.setIs_locked(false);
+        else ;
+        if(health_query!=null && health_query.equals("healthy"))user.setHealth_status(0);
+        else if(health_query!=null && health_query.equals("unhealthy"))user.setHealth_status(1);
+        else;
+        if(user.getId()!=null) {
+
+            map = userService.getList(user,page, limit,sort);
+        }
+        else{
+            User user1 = new User();
+            user1.setHealth_status(user.getHealth_status());
+            user1.setIs_locked(user.getIs_locked());
+            map = userService.getList(user1,page, limit,sort);
+        }
         result.put("data",map);
 
         return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);

@@ -32,18 +32,18 @@ public class inspectorController {
         json.put("code",20000);
         Map<String, Object> map = new HashMap<String, Object>();
         Page<Inspectors> pages = new Page<>(page,limit);
-        if(inspectors.getId()!=null&&!inspectors.getUsername().equals("")){
+        if(inspectors.getId()!=null&&inspectors.getUsername()!=null){
             inspectorsMapper.selectPage(pages,new QueryWrapper<Inspectors>().like("username",inspectors.getUsername()).like("id",inspectors.getId()));
         }else {
             if(inspectors.getId()!=null) {
                 inspectorsMapper.selectPage(pages,new QueryWrapper<Inspectors>().like("id",inspectors.getId()));
             }
-            if(!inspectors.getUsername().equals("")){
+            if(inspectors.getUsername()!=null){
                 inspectorsMapper.selectPage(pages,new QueryWrapper<Inspectors>().like("username",inspectors.getUsername()));
             }
         }
 
-        if (inspectors.getId()==null&&inspectors.getUsername().equals("")){
+        if (inspectors.getId()==null&&inspectors.getUsername()==null){
             inspectorsMapper.selectPage(pages,new QueryWrapper<Inspectors>());
         }
         List<Inspectors> inspector = pages.getRecords();
@@ -57,18 +57,20 @@ public class inspectorController {
 
     //2.添加检查员
     @PostMapping("/create")
-    public String creatInspector(Inspectors inspectors,String comfirm_password){
+    public String creatInspector(Inspectors inspectors,String confirm_password,String new_password){
         JSONObject json = new JSONObject();
         json.put("code",20000);
-        Result result = new Result();
-        result.setResult(3);//信号量  成功:0   用户名已存在:1   两次密码不一致:2   读写错误:3
-        if(!Objects.equals(inspectors.getPassword(), comfirm_password)){
-            result.setResult(2);
-            json.put("data",result);
+        Map<String, Object> map = new HashMap<String, Object>();
+        //信号量  成功:0   用户名已存在:1   两次密码不一致:2   读写错误:3
+        if(!Objects.equals(new_password, confirm_password)){
+            map.put("id",0);
+            map.put("result",2);
+            json.put("data",map);
             return json.toJSONString();
         }else {
-            result.setResult(inspectorService.createInspector(inspectors));
-            json.put("data",result);
+            inspectors.setPassword(new_password);
+            map = inspectorService.createInspector(inspectors);
+            json.put("data",map);
             return json.toJSONString();
         }
     }
@@ -76,12 +78,12 @@ public class inspectorController {
     //3.修改检查员密码
     //信号量  成功:0   两次密码不一致:1   旧密码不正确:2   读写错误:3
     @PostMapping("/update")
-    public String updateAdmin(String id,String old_password,String new_password,String comfirm_password){
+    public String updateAdmin(String id,String old_password,String new_password,String confirm_password){
         JSONObject json = new JSONObject();
         json.put("code",20000);
         Result result = new Result();
         try {
-            if (!Objects.equals(new_password, comfirm_password)) {
+            if (!Objects.equals(new_password, confirm_password)) {
                 result.setResult(1);
                 json.put("data", result);
                 return json.toJSONString();

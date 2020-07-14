@@ -13,7 +13,7 @@ public interface inspectorService {
 
     Map<String,Object> inspectorList(int index , int limit);
 
-    int createInspector(Inspectors inspectors);
+    Map<String,Object> createInspector(Inspectors inspectors);
 
     int updatePassword(Inspectors inspectors);
 
@@ -23,7 +23,7 @@ public interface inspectorService {
 
     String getOpenid(String code);
 
-    String ChangePwd(int id,String old_password,String password,String comfirm_password);
+    String ChangePwd(int id,String old_password,String password,String confirm_password);
 
     String CancelBind(int id);
 

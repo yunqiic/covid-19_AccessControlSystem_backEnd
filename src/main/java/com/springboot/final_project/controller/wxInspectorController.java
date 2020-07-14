@@ -90,8 +90,8 @@ public class wxInspectorController {
 
     //4.检查员修改密码
     @RequestMapping("/change-pwd")
-    public String changePwd(int id,String old_password,String password,String comfirm_password) {
-        return inspectorService.ChangePwd(id,old_password,password,comfirm_password);
+    public String changePwd(int id,String old_password,String password,String confirm_password) {
+        return inspectorService.ChangePwd(id,old_password,password,confirm_password);
     }
 
     //5.检查员解除绑定

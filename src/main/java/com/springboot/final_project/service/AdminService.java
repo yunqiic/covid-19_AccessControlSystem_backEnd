@@ -20,5 +20,4 @@ public interface AdminService {
     int deleteAdmin(Admin admin);
 
 
-
 }

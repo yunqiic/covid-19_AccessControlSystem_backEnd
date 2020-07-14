@@ -3,17 +3,17 @@ package com.springboot.final_project.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.zxing.WriterException;
+import com.springboot.final_project.Entity.Admin;
 import com.springboot.final_project.Entity.User;
-import com.springboot.final_project.service.RecordFormService;
-import com.springboot.final_project.service.UserService;
+import com.springboot.final_project.mapper.AdminMapper;
+import com.springboot.final_project.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import com.springboot.final_project.service.wxService;
-import com.springboot.final_project.service.waterService;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -34,6 +34,9 @@ public class wxController {
     @Autowired
     RecordFormService recordFormService;
 
+    @Autowired
+    AdminMapper adminMapper;
+
     //去到后台登陆页面
     @RequestMapping("/")
     public String index(){
@@ -42,12 +45,33 @@ public class wxController {
 
     @RequestMapping("/admin/login")
     @ResponseBody
-    public String adminLogin(String username,String password){
+    public String adminLogin(Admin admin){
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("code",20000);
-        jsonObject.put("data","admin-token");
+        QueryWrapper<Admin> wrapper = new QueryWrapper();
+
+        Admin admin1 = adminMapper.selectOne(wrapper.eq("username", admin.getUsername()));
+        if(admin1==null || !admin.getPassword().equals(admin1.getPassword())){
+            jsonObject.put("message","用户名 或 密码错误");
+        }
+        else{
+            jsonObject.put("code",20000);
+            jsonObject.put("data","admin-token");
+        }
+
         return jsonObject.toJSONString();
 //        return wxService.adminLogin();
+    }
+
+    //登出
+    @RequestMapping("/admin/logout")
+    @ResponseBody
+    public String adminLogout(){
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("code",20000);
+        jsonObject.put("data",0);
+        return jsonObject.toJSONString();
+
     }
 
     @RequestMapping("/admin/info")
@@ -75,6 +99,7 @@ public class wxController {
         return waterService.waterCheck(ticket,randstr);
     }
 
+
     //微信住户后端：
 
     //0.获取openid
@@ -87,12 +112,12 @@ public class wxController {
     //1.注册账号
     @RequestMapping("/wx/resident/register")
     @ResponseBody
-    public String ResidentRegister(User user,String comfirm_password){
+    public String ResidentRegister(User user,String confirm_password){
         JSONObject result = new JSONObject();
         user.setHealth_status(0);
         user.setIs_locked(false);
         user.setAccess_times(0);
-        if("".equals(comfirm_password) ||"".equals(user.getPassword())||(!user.getPassword().equals(comfirm_password))){
+        if("".equals(confirm_password) ||"".equals(user.getPassword())||(!user.getPassword().equals(confirm_password))){
             result.put("id",0);
             result.put("result",2);//信号量  成功:0   用户名已存在:1   两次密码不一致:2  读写错误:3
             return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
@@ -197,8 +222,8 @@ public class wxController {
     //7.住户修改密码
     @RequestMapping("/wx/resident/change-pwd")
     @ResponseBody
-    public String changePwd(int id,String old_password,String password,String comfirm_password) {
-        return userService.ChangePwd(id,old_password,password,comfirm_password);
+    public String changePwd(int id,String old_password,String password,String confirm_password) {
+        return userService.ChangePwd(id,old_password,password,confirm_password);
     }
 
     //8.住户解除绑定

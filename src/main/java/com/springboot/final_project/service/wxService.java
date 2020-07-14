@@ -39,6 +39,28 @@ public class wxService {
     @Autowired
     private UserMapper userMapper;
 
+    public String adminLogin() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("code",20000);
+        jsonObject.put("data","admin-token");
+        return jsonObject.toJSONString();
+    }
+
+    public String adminInfo() {
+        JSONObject data = new JSONObject();
+
+        data.put("roles","admin");
+        data.put("introduction","I am a super administrator");
+        data.put("avatar","https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif");
+        data.put("name","Super Admin");
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("code",20000);
+        jsonObject.put("data",data);
+        return jsonObject.toJSONString();
+    }
+
+
     public String getOpenid(String code) {
         QueryWrapper<User> wrapper = new QueryWrapper();
         UriComponents uriComponents = UriComponentsBuilder

@@ -67,19 +67,32 @@ public class inspectorServiceImpl implements inspectorService {
     }
 
     @Override
-    public int createInspector(Inspectors inspectors) {
+    public Map<String,Object> createInspector(Inspectors inspectors) {
         Integer result = 0;
         QueryWrapper<Inspectors> wrapper = new QueryWrapper();
-
-        Inspectors inspectors1= inspectorsMapper.selectOne(wrapper.eq("username",inspectors.getUsername()));
-
-        if(inspectors1 != null){
-            result =1;
-            return result;
-        }else {
-            inspectorsMapper.insert(inspectors);
-            result=0;
-            return result;
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        try {
+            Inspectors inspectors1= inspectorsMapper.selectOne(wrapper.eq("username",inspectors.getUsername()));
+            if (inspectors1 != null) {
+                result = 1;
+                map.put("result",result);
+                map.put("id",0);
+                return map;
+            } else {
+                inspectorsMapper.insert(inspectors);
+                Inspectors inspectors2 = inspectorsMapper.selectOne(wrapper.eq("username",inspectors.getUsername()));
+                result = 0;
+                map.put("result",result);
+                map.put("id",inspectors2.getId());
+                System.out.println("mmmmmmm");
+                return map;
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+            result = 3;
+            map.put("result",result);
+            map.put("id",0);
+            return map;
         }
     }
 
@@ -112,6 +125,7 @@ public class inspectorServiceImpl implements inspectorService {
 
     @Override
     public String getOpenid(String code) {
+        QueryWrapper<Inspectors> wrapper = new QueryWrapper();
 
         UriComponents uriComponents = UriComponentsBuilder
                 .fromUriString("https://api.weixin.qq.com/sns/jscode2session?appid=wx3e5955768b640056&secret=02878d1ff0518b5893a35c4227fce5e0&js_code={code}&grant_type=authorization_code").build()
@@ -125,18 +139,22 @@ public class inspectorServiceImpl implements inspectorService {
         ResponseEntity<String> exchange = new RestTemplate().exchange(requestEntity, String.class);
         String body = exchange.getBody();
         JSONObject jsonObject = JSON.parseObject(body);
+        JSONObject result = new JSONObject();
         String openid = jsonObject.getString("openid");
         System.out.println(openid);
-        jsonObject.put("bindSign",false);
-        return jsonObject.toJSONString();
+        result.put("openid",openid);
+        Inspectors inspectors = inspectorsMapper.selectOne(wrapper.eq("openid", openid));
+        if(inspectors==null) result.put("bindSign",false);
+        else result.put("bindSign",true);
+        return result.toJSONString();
     }
 
     @Override   //信号量  成功:0   两次密码不一致:1   旧密码不正确:2   读写错误:3
-    public String ChangePwd(int id,String old_password,String password,String comfirm_password){
+    public String ChangePwd(int id,String old_password,String password,String confirm_password){
         JSONObject result = new JSONObject();
         try {
             Inspectors inspectors = inspectorsMapper.selectById(id);
-            if (!Objects.equals(comfirm_password, password)) {
+            if (!Objects.equals(confirm_password, password)) {
                 result.put("result", 1);
                 return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
             }

@@ -29,51 +29,51 @@ public class UserServiceImpl implements UserService {
     public Map<String,Object> getList(User user, int index, int limit, String sort) {
         Page<User> page = new Page<>(index,limit);
         //1只查id
-        if(user.getId()!= null && user.getName().equals("") && user.getIs_locked()==null && user.getHealth_status()==null) {
+        if(user.getId()!= null && user.getName()==null && user.getIs_locked()==null && user.getHealth_status()==null) {
             userMapper.selectPage(page, new QueryWrapper<User>().like("id", user.getId()));
         }
         //2只查name
-        else if(user.getId() == null && !user.getName().equals("") &&user.getIs_locked()==null&&user.getHealth_status()==null)
+        else if(user.getId() == null && user.getName()!=null &&user.getIs_locked()==null&&user.getHealth_status()==null)
             userMapper.selectPage(page,new QueryWrapper<User>().like("name",user.getName()));
-        //3只查锁定
-        else if(user.getId() == null && user.getName().equals("") && user.getIs_locked()!=null && user.getHealth_status()==null){
+            //3只查锁定
+        else if(user.getId() == null && user.getName()==null && user.getIs_locked()!=null && user.getHealth_status()==null){
             if(user.getIs_locked()==true)userMapper.selectPage(page,new QueryWrapper<User>().eq("is_locked",1));
             else userMapper.selectPage(page,new QueryWrapper<User>().eq("is_locked",0));
         }
         //4只查健康
-        else if(user.getId() == null && user.getName().equals("") && user.getIs_locked()==null && user.getHealth_status()!=null){
+        else if(user.getId() == null && user.getName()==null && user.getIs_locked()==null && user.getHealth_status()!=null){
             //healthy
             if(user.getHealth_status()==0)userMapper.selectPage(page,new QueryWrapper<User>().lt("health_status",3));//小于3
             else userMapper.selectPage(page,new QueryWrapper<User>().ge("health_status",3));//大于等于3
         }
         //5查id和name
-        else if(user.getId()!= null && !user.getName().equals("") && user.getIs_locked()==null && user.getHealth_status()==null){
+        else if(user.getId()!= null && user.getName()!=null && user.getIs_locked()==null && user.getHealth_status()==null){
             userMapper.selectPage(page, new QueryWrapper<User>().like("id", user.getId()).like("name",user.getName()));
         }
         //6查id和锁定
-        else if(user.getId()!= null && user.getName().equals("") && user.getIs_locked()!=null && user.getHealth_status()==null){
+        else if(user.getId()!= null && user.getName()==null && user.getIs_locked()!=null && user.getHealth_status()==null){
             if(user.getIs_locked()==true)userMapper.selectPage(page,new QueryWrapper<User>().eq("is_locked",1).like("id", user.getId()));
             else userMapper.selectPage(page,new QueryWrapper<User>().eq("is_locked",0).like("id", user.getId()));
         }
         //7查id和健康
-        else if(user.getId() != null && user.getName().equals("") && user.getIs_locked()==null && user.getHealth_status()!=null){
+        else if(user.getId() != null && user.getName()==null && user.getIs_locked()==null && user.getHealth_status()!=null){
             //healthy
             if(user.getHealth_status()==0)userMapper.selectPage(page,new QueryWrapper<User>().lt("health_status",3).like("id", user.getId()));//小于3
             else userMapper.selectPage(page,new QueryWrapper<User>().ge("health_status",3).like("id", user.getId()));//大于等于3
         }
         //8查name和锁定
-        else if(user.getId()== null && !user.getName().equals("") && user.getIs_locked()!=null && user.getHealth_status()==null){
+        else if(user.getId()== null && user.getName()!=null && user.getIs_locked()!=null && user.getHealth_status()==null){
             if(user.getIs_locked()==true)userMapper.selectPage(page,new QueryWrapper<User>().eq("is_locked",1).like("name",user.getName()));
             else userMapper.selectPage(page,new QueryWrapper<User>().eq("is_locked",0).like("name",user.getName()));
         }
         //9name和健康
-        else if(user.getId() == null && !user.getName().equals("") && user.getIs_locked()==null && user.getHealth_status()!=null){
+        else if(user.getId() == null && user.getName()!=null && user.getIs_locked()==null && user.getHealth_status()!=null){
             //healthy
             if(user.getHealth_status()==0)userMapper.selectPage(page,new QueryWrapper<User>().lt("health_status",3).like("name",user.getName()));//小于3
             else userMapper.selectPage(page,new QueryWrapper<User>().ge("health_status",3).like("name",user.getName()));//大于等于3
         }
         //10锁定和健康
-        else if(user.getId() == null && user.getName().equals("") && user.getIs_locked()!=null && user.getHealth_status()!=null){
+        else if(user.getId() == null && user.getName()==null && user.getIs_locked()!=null && user.getHealth_status()!=null){
             if(user.getIs_locked()==true){
                 if(user.getHealth_status()==0){
                     userMapper.selectPage(page,new QueryWrapper<User>().lt("health_status",3).eq("is_locked",1));//小于3
@@ -92,18 +92,18 @@ public class UserServiceImpl implements UserService {
             }
         }
         //11查id、name、锁定
-        else if(user.getId()!= null && !user.getName().equals("") && user.getIs_locked()!=null && user.getHealth_status()==null){
+        else if(user.getId()!= null && user.getName()!=null && user.getIs_locked()!=null && user.getHealth_status()==null){
             if(user.getIs_locked()==true)userMapper.selectPage(page,new QueryWrapper<User>().eq("is_locked",1).like("id", user.getId()).like("name",user.getName()));
             else userMapper.selectPage(page,new QueryWrapper<User>().eq("is_locked",0).like("id", user.getId()).like("name",user.getName()));
         }
         //12查id、name、健康
-        else if(user.getId() != null && !user.getName().equals("") && user.getIs_locked()==null && user.getHealth_status()!=null){
+        else if(user.getId() != null && user.getName()!=null && user.getIs_locked()==null && user.getHealth_status()!=null){
             //healthy
             if(user.getHealth_status()==0)userMapper.selectPage(page,new QueryWrapper<User>().lt("health_status",3).like("id", user.getId()).like("name",user.getName()));//小于3
             else userMapper.selectPage(page,new QueryWrapper<User>().ge("health_status",3).like("id", user.getId()).like("name",user.getName()));//大于等于3
         }
         //13查name、锁定、健康
-        else if(user.getId() == null && !user.getName().equals("") && user.getIs_locked()!=null && user.getHealth_status()!=null){
+        else if(user.getId() == null && user.getName()!=null && user.getIs_locked()!=null && user.getHealth_status()!=null){
             if(user.getIs_locked()==true){
                 if(user.getHealth_status()==0){
                     userMapper.selectPage(page,new QueryWrapper<User>().lt("health_status",3).eq("is_locked",1).like("name",user.getName()));//小于3
@@ -122,7 +122,7 @@ public class UserServiceImpl implements UserService {
             }
         }
         //14查id、锁定、健康
-        else if(user.getId() != null && user.getName().equals("") && user.getIs_locked()!=null && user.getHealth_status()!=null){
+        else if(user.getId() != null && user.getName()==null && user.getIs_locked()!=null && user.getHealth_status()!=null){
             if(user.getIs_locked()==true){
                 if(user.getHealth_status()==0){
                     userMapper.selectPage(page,new QueryWrapper<User>().lt("health_status",3).eq("is_locked",1).like("id", user.getId()));//小于3
@@ -141,7 +141,7 @@ public class UserServiceImpl implements UserService {
             }
         }
         //15全都查
-        else if(user.getId() != null && !user.getName().equals("") && user.getIs_locked()!=null && user.getHealth_status()!=null){
+        else if(user.getId() != null && user.getName()!=null && user.getIs_locked()!=null && user.getHealth_status()!=null){
             if(user.getIs_locked()==true){
                 if(user.getHealth_status()==0){
                     userMapper.selectPage(page,new QueryWrapper<User>().lt("health_status",3).eq("is_locked",1).like("id", user.getId()).like("name",user.getName()));//小于3
@@ -212,12 +212,13 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+
     @Override//信号量  成功:0   两次密码不一致:1   旧密码不正确:2   读写错误:3
-    public String ChangePwd(int id,String old_password,String password,String comfirm_password){
+    public String ChangePwd(int id,String old_password,String password,String confirm_password){
         JSONObject result = new JSONObject();
         try {
             User user = userMapper.selectById(id);
-            if (!Objects.equals(comfirm_password, password)) {
+            if (!Objects.equals(confirm_password, password)) {
                 result.put("result", 1);
                 return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
             }

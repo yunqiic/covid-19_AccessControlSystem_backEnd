@@ -36,6 +36,7 @@ public class MyUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
 //        com.springboot.final_project.Entity.User  myUser = userMapper.selectOne(new QueryWrapper<com.springboot.final_project.Entity.User>().eq("username",username));
+
         Admin admin = adminMapper.selectOne(new QueryWrapper<Admin>().eq("username",username));
 
         Collection<GrantedAuthority> authorities = new ArrayList<>();
@@ -43,6 +44,7 @@ public class MyUserDetailsService implements UserDetailsService {
         // 封装用户信息，并返回。参数分别是：用户名，密码，用户权限
         User user = new User(username, passwordEncoder.encode(admin.getPassword()),
                 authorities);
+
         return user;
     }
 }
