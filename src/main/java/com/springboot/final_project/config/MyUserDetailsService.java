@@ -1,6 +1,8 @@
 package com.springboot.final_project.config;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.springboot.final_project.Entity.Admin;
+import com.springboot.final_project.mapper.AdminMapper;
 import com.springboot.final_project.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,8 +23,11 @@ import java.util.Collection;
 @Service
 public class MyUserDetailsService implements UserDetailsService {
 
+//    @Autowired
+//    UserMapper userMapper;
+
     @Autowired
-    UserMapper userMapper;
+    AdminMapper adminMapper;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -30,12 +35,13 @@ public class MyUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        com.springboot.final_project.Entity.User  myUser = userMapper.selectOne(new QueryWrapper<com.springboot.final_project.Entity.User>().eq("username",username));
+//        com.springboot.final_project.Entity.User  myUser = userMapper.selectOne(new QueryWrapper<com.springboot.final_project.Entity.User>().eq("username",username));
+        Admin admin = adminMapper.selectOne(new QueryWrapper<Admin>().eq("username",username));
 
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         // 封装用户信息，并返回。参数分别是：用户名，密码，用户权限
-        User user = new User(username, passwordEncoder.encode(myUser.getPassword()),
+        User user = new User(username, passwordEncoder.encode(admin.getPassword()),
                 authorities);
         return user;
     }

@@ -3,6 +3,7 @@ package com.springboot.final_project.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
@@ -39,7 +40,7 @@ public class wxService {
     private UserMapper userMapper;
 
     public String getOpenid(String code) {
-
+        QueryWrapper<User> wrapper = new QueryWrapper();
         UriComponents uriComponents = UriComponentsBuilder
                 .fromUriString("https://api.weixin.qq.com/sns/jscode2session?appid=wx3e5955768b640056&secret=02878d1ff0518b5893a35c4227fce5e0&js_code={code}&grant_type=authorization_code").build()
                 .expand(code)
@@ -52,10 +53,17 @@ public class wxService {
         ResponseEntity<String> exchange = new RestTemplate().exchange(requestEntity, String.class);
         String body = exchange.getBody();
         JSONObject jsonObject = JSON.parseObject(body);
+        JSONObject result = new JSONObject();
         String openid = jsonObject.getString("openid");
+        System.out.println("！！！！！！！");
         System.out.println(openid);
-        jsonObject.put("registerSign",false);
-        return jsonObject.toJSONString();
+        System.out.println(jsonObject);
+
+        result.put("openid",openid);
+        User user = userMapper.selectOne(wrapper.eq("openid", openid));
+        if(user==null) result.put("registerSign",false);
+        else result.put("registerSign",true);
+        return result.toJSONString();
     }
 
     public String getQRcode(int id) throws WriterException, IOException {
