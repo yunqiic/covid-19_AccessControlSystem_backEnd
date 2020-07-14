@@ -130,7 +130,9 @@ public class userController
         JSONObject result = new JSONObject();
         result.put("code", 20000);
         User user = userService.getById(id);
-        result.put("info",user);
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("info",user);
+        result.put("data",map);
         return JSON.toJSONString(result, SerializerFeature.DisableCircularReferenceDetect);
     }
 
