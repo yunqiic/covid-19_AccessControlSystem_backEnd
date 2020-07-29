@@ -35,7 +35,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/","/waterCheck").permitAll() // permitAll被允许访问
+                .antMatchers("/","/waterCheck","/wx/**").permitAll() // permitAll被允许访问
                 .anyRequest().authenticated() // 其余的请求需要认证后才可允许访问
                 .and()
                 .formLogin()

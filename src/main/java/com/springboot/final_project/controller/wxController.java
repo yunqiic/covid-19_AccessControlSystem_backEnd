@@ -43,36 +43,37 @@ public class wxController {
         return "index.html";
     }
 
-    @RequestMapping("/admin/login")
-    @ResponseBody
-    public String adminLogin(Admin admin){
-        JSONObject jsonObject = new JSONObject();
-        QueryWrapper<Admin> wrapper = new QueryWrapper();
-
-        Admin admin1 = adminMapper.selectOne(wrapper.eq("username", admin.getUsername()));
-        if(admin1==null || !admin.getPassword().equals(admin1.getPassword())){
-            jsonObject.put("message","用户名 或 密码错误");
-        }
-        else{
-            jsonObject.put("code",20000);
-            jsonObject.put("data","admin-token");
-        }
-
-        return jsonObject.toJSONString();
-//        return wxService.adminLogin();
-    }
-
-    //登出
-    @RequestMapping("/admin/logout")
-    @ResponseBody
-    public String adminLogout(){
-
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("code",20000);
-        jsonObject.put("data",0);
-        return jsonObject.toJSONString();
-
-    }
+//    //登入测试
+//    @RequestMapping("/admin/login")
+//    @ResponseBody
+//    public String adminLogin(Admin admin){
+//        JSONObject jsonObject = new JSONObject();
+//        QueryWrapper<Admin> wrapper = new QueryWrapper();
+//
+//        Admin admin1 = adminMapper.selectOne(wrapper.eq("username", admin.getUsername()));
+//        if(admin1==null || !admin.getPassword().equals(admin1.getPassword())){
+//            jsonObject.put("message","用户名 或 密码错误");
+//        }
+//        else{
+//            jsonObject.put("code",20000);
+//            jsonObject.put("data","admin-token");
+//        }
+//
+//        return jsonObject.toJSONString();
+////        return wxService.adminLogin();
+//    }
+//
+//    //登出测试
+//    @RequestMapping("/admin/logout")
+//    @ResponseBody
+//    public String adminLogout(){
+//
+//        JSONObject jsonObject = new JSONObject();
+//        jsonObject.put("code",20000);
+//        jsonObject.put("data",0);
+//        return jsonObject.toJSONString();
+//
+//    }
 
     @RequestMapping("/admin/info")
     @ResponseBody
